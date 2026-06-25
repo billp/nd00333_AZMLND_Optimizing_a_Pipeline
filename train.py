@@ -9,7 +9,6 @@ the fitted model to ./outputs/model.joblib so the best run can be registered.
 import argparse
 import os
 
-import joblib
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
@@ -115,6 +114,9 @@ def main():
     run.log("Accuracy", float(accuracy))
 
     # Persist the model so the best HyperDrive run can register it.
+    # Imported here (not at module top) so the notebook can import clean_data
+    # without joblib installed in its kernel.
+    import joblib
     os.makedirs("outputs", exist_ok=True)
     joblib.dump(model, "outputs/model.joblib")
 
