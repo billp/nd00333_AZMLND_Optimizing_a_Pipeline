@@ -18,12 +18,21 @@ from azureml.core.run import Run
 from azureml.data.dataset_factory import TabularDatasetFactory
 
 # --- Load the data ---------------------------------------------------------
-# The UCI Bank Marketing dataset, hosted by Azure for this project.
+# UCI Bank Marketing dataset. The original Azure sample blob
+# (automlsamplenotebookdata.blob.core.windows.net) is no longer publicly
+# accessible (returns HTTP 403), so we self-host an identical copy in this repo.
 DATA_URL = (
-    "https://automlsamplenotebookdata.blob.core.windows.net/"
-    "automl-sample-notebook-data/bankmarketing_train.csv"
+    "https://raw.githubusercontent.com/billp/"
+    "nd00333_AZMLND_Optimizing_a_Pipeline/main/bankmarketing_train.csv"
 )
-ds = TabularDatasetFactory.from_delimited_files(path=DATA_URL, validate=False)
+
+# Prefer a TabularDataset (per the project rubric); if the AzureML data runtime
+# cannot read the stream on the remote compute, fall back to plain pandas, which
+# reads the public CSV over HTTPS directly.
+try:
+    ds = TabularDatasetFactory.from_delimited_files(path=DATA_URL)
+except Exception:
+    ds = None
 
 
 def clean_data(data):
@@ -40,8 +49,11 @@ def clean_data(data):
     }
     weekdays = {"mon": 1, "tue": 2, "wed": 3, "thu": 4, "fri": 5, "sat": 6, "sun": 7}
 
-    # TabularDataset -> pandas; drop rows with missing values
-    x_df = data.to_pandas_dataframe().dropna()
+    # Accept either a TabularDataset or a pandas DataFrame; drop missing values
+    if hasattr(data, "to_pandas_dataframe"):
+        x_df = data.to_pandas_dataframe().dropna()
+    else:
+        x_df = data.dropna().copy()
 
     # job: one-hot
     jobs = pd.get_dummies(x_df.job, prefix="job")
@@ -90,7 +102,8 @@ def main():
     run.log("Regularization Strength:", float(args.C))
     run.log("Max iterations:", int(args.max_iter))
 
-    x, y = clean_data(ds)
+    data = ds if ds is not None else pd.read_csv(DATA_URL)
+    x, y = clean_data(data)
 
     # Hold out 20% for evaluation; fixed seed for reproducibility across runs.
     x_train, x_test, y_train, y_test = train_test_split(
