@@ -1,0 +1,10 @@
+# Environment used by the HyperDrive ScriptRunConfig to run train.py.
+name: sklearn-env
+dependencies:
+  - python=3.8
+  - pip:
+      - azureml-defaults
+      - scikit-learn
+      - pandas
+      - numpy
+      - joblib
