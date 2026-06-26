@@ -15,9 +15,10 @@ bank — client demographics, contact details, and campaign attributes (32,950
 rows). We are solving a **binary classification** problem: predict whether a
 client will **subscribe to a term deposit** (column `y`, yes/no).
 
-**The result.** The best performing model was the **AutoML `VotingEnsemble`**,
-with an accuracy of **0.9174 (91.74%)**. It narrowly beat the best
-HyperDrive-tuned Logistic Regression, which reached **0.9088 (90.88%)**.
+**The result.** The best performing model came from **AutoML** — a
+**StandardScalerWrapper + XGBoostClassifier** pipeline with an accuracy of
+**0.9151 (91.51%)**. It beat the best HyperDrive-tuned Logistic Regression,
+which reached **0.9088 (90.88%)**.
 
 ## Scikit-learn Pipeline
 
@@ -70,16 +71,21 @@ ensembles.
 | Iter | Pipeline | Accuracy |
 |---|---|---|
 | 0 | MaxAbsScaler · LightGBM | 0.9142 |
-| 11 | StandardScalerWrapper · XGBoostClassifier | 0.9151 |
-| 18 | StandardScalerWrapper · XGBoostClassifier | 0.9143 |
-| 21 | **VotingEnsemble** | **0.9174** |
-| 22 | StackEnsemble | 0.9156 |
+| 3 | SparseNormalizer · XGBoostClassifier | 0.9141 |
+| 7 | MaxAbsScaler · LogisticRegression | 0.9084 |
+| 11 | **StandardScalerWrapper · XGBoostClassifier** | **0.9151** |
+| — | VotingEnsemble / StackEnsemble (also generated) | ~0.915 |
 
-- **Best model: `VotingEnsemble`** — a soft-voting ensemble that combines the
-  top-performing individual pipelines (mostly XGBoost and LightGBM variants with
-  different scalers), each weighted by its validation performance. This ensembling
-  is what pushed accuracy above any single model (0.9151 → 0.9174).
-- **Best accuracy: 0.9174.**
+- **Best model (registered): `StandardScalerWrapper + XGBoostClassifier`** —
+  gradient-boosted trees (`booster=gbtree`, `max_depth=6`, `eta=0.3`,
+  `reg_alpha=0.3125`, `reg_lambda≈2.40`, `n_estimators=10`) on standard-scaled
+  features. This was the model returned by `get_output()` and registered as
+  `automl_best_model`.
+- **Best accuracy: 0.9151.**
+- AutoML also automatically generated **VotingEnsemble** and **StackEnsemble**
+  candidates during the search (soft-voting / stacking over the top pipelines),
+  illustrating how it ensembles models beyond what the single Scikit-learn
+  pipeline can do.
 
 AutoML also ran **data guardrails**, which flagged **class imbalance**: the
 positive class (`y = yes`) has only **3,692 of 32,950** samples (~11%). It
@@ -90,10 +96,10 @@ confirmed there were no missing values and no high-cardinality features.
 | Pipeline | Best model | Accuracy |
 |---|---|---|
 | Scikit-learn + HyperDrive | LogisticRegression (`C=5.101`, `max_iter=150`) | **0.9088** |
-| AutoML | **VotingEnsemble** | **0.9174** |
+| AutoML | **StandardScalerWrapper + XGBoostClassifier** | **0.9151** |
 
-**Difference in accuracy:** AutoML was higher by **~0.86 percentage points**
-(0.9174 vs 0.9088).
+**Difference in accuracy:** AutoML was higher by **~0.63 percentage points**
+(0.9151 vs 0.9088).
 
 **Difference in architecture and why results differ.** The HyperDrive pipeline
 is constrained to a *single* model family — logistic regression, a linear model —
