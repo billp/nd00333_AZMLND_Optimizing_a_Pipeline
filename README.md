@@ -130,6 +130,7 @@ See the [`screenshots/`](screenshots) folder:
 | # | File | Shows |
 |---|---|---|
 | 1 | `01-hyperdrive-run-completed.png` | HyperDrive run Execution Summary (Completed) |
+| 1b | `01b-hyperdrive-run-details-studio.png` | HyperDrive run details in Studio — RANDOM sampler, Bandit policy, primary metric, best trial, 20/20 runs (equivalent to the RunDetails widget) |
 | 2 | `02-hyperdrive-best-run-and-registered-model.png` | Best HyperDrive run — `C`, `max_iter`, accuracy — and registered model |
 | 3 | `03-automl-data-guardrails-class-imbalance.png` | AutoML data guardrails (class-imbalance alert) |
 | 4 | `04-automl-leaderboard.png` | AutoML model leaderboard |
