@@ -124,12 +124,24 @@ HyperDrive logistic regression is faster, simpler, and far easier to explain.
 - **Better evaluation.** Report precision/recall/AUC and a confusion matrix, not
   just accuracy, and use stratified cross-validation in `train.py` too.
 
+## Screenshots
+See the [`screenshots/`](screenshots) folder:
+
+| # | File | Shows |
+|---|---|---|
+| 1 | `01-hyperdrive-run-completed.png` | HyperDrive run Execution Summary (Completed) |
+| 2 | `02-hyperdrive-best-run-and-registered-model.png` | Best HyperDrive run — `C`, `max_iter`, accuracy — and registered model |
+| 3 | `03-automl-data-guardrails-class-imbalance.png` | AutoML data guardrails (class-imbalance alert) |
+| 4 | `04-automl-leaderboard.png` | AutoML model leaderboard |
+| 5 | `05-automl-best-model-registered.png` | Best AutoML model retrieved and registered |
+| 6 | `06-compute-cluster-cleanup.png` | `cpu_cluster.delete()` cluster cleanup |
+
 ## Proof of cluster clean up
 The final notebook cell deletes the compute cluster:
 ```python
 cpu_cluster.delete()
 ```
-(See the accompanying screenshot of the cluster deletion.)
+See `screenshots/06-compute-cluster-cleanup.png`.
 
 ## Notes on reproducing this run
 The original Azure sample blob for `bankmarketing_train.csv` is no longer
